@@ -1,0 +1,131 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class HeroControl : MonoBehaviour, IAnima
+{
+    [SerializeField]
+    private float moveSpeed = 4; //character move speed
+
+    [SerializeField] private float gravityScale = 10f; //character gravity
+    [SerializeField] private Vector3 moveDir; // character move direction
+    [SerializeField]
+    private CharacterController charCon; //character controller (duh)
+    [SerializeField]
+    private Animator animator; //character animator
+    [SerializeField]
+    private float jumpForce = 5; //character jump force
+    [SerializeField] private bool grounded; //true if char is on grounded
+
+    void Start ()
+    {
+        // charCon = GetComponent<CharacterController>();
+        //animator = GetComponent<Animator>();
+    }
+    
+    void Update ()
+    {
+        
+        charCon.Move(moveDir * Time.deltaTime);  
+
+
+        if (charCon.isGrounded)
+        {
+            grounded = true;
+            Movement ("falling", false);
+            charCon.Move (Vector3.zero);      
+
+        #region move F - B
+            if (Input.GetKey(KeyCode.W))
+            {
+                moveDir = new Vector3 (0,0,1);
+                moveDir *= moveSpeed;
+                Movement ("running", true);
+            }
+            else
+            {
+                moveDir = Vector3.zero;
+                Movement ("running", false);
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                moveDir = new Vector3 (0,0,-1);
+                moveDir *= moveSpeed;
+                Movement ("backwards", true);
+            }
+            else
+            {               
+                Movement ("backwards", false);
+            }
+            if (Input.GetKey(KeyCode.S) && Input.GetKey(KeyCode.W))
+            {
+                moveDir = Vector3.zero;
+                Movement ("running", false);
+                Movement ("backwards", true);
+            }
+        #endregion    
+        #region move L - R
+            if (Input.GetKey(KeyCode.A))
+            {
+                moveDir = new Vector3 (-1,0,0);
+                moveDir *= moveSpeed;
+                Movement ("left", true);
+            }
+            else
+            {
+                Movement ("left", false);
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                moveDir = new Vector3 (1,0,0);
+                moveDir *= moveSpeed;
+                Movement ("right", true);
+            }
+            else
+            {
+                Movement ("right", false);
+            }
+            if (Input.GetKey(KeyCode.A) && Input.GetKey(KeyCode.D))
+            {
+                moveDir = Vector3.zero;
+                Movement ("left", false);
+                Movement ("right", true);
+            }
+        #endregion  
+        #region Jump
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                moveDir.y = jumpForce;
+            }           
+        #endregion 
+        }
+        else
+        {
+            grounded = false;
+            Movement ("falling", true);
+            moveDir.y -= (gravityScale * Time.deltaTime);  
+
+        }
+
+
+    }
+
+    public void Movement (string n, bool t)
+    {
+        animator.SetBool(n, t);
+    }
+
+    /*void OnCollisionEnter (Collision ground)
+    {
+        if (ground.name == "ground")
+        {
+            grounded = true;
+        }
+    }
+
+    void OnCollisionExit (Collision ground)
+    {
+
+    }*/
+}
